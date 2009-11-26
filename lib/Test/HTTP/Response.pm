@@ -93,7 +93,7 @@ sub status_matches {
     my $ok = $tb->ok( $match, $comment);
     unless ($ok) {
 	$diag ||= "status doesn't match, expected HTTP status code '$code', got " . $response->code . "\n";
-	$tb->diag();
+	$tb->diag($diag);
     }
     return $ok;
 }
@@ -127,6 +127,15 @@ sub status_error {
     return status_matches($response, qr/5\d\d/, $comment, $diag );
 }
 
+=head2 header_matches
+
+=cut
+
+sub header_matches {
+    my ($response, $field, $value, $comment) = @_;
+
+    
+}
 
 =head2 cookie_matches
 
