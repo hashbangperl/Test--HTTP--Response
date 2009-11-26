@@ -2,9 +2,11 @@ use strict;
 use HTTP::Response;
 use HTTP::Message;
 
+use Data::Dumper;
+
 use CGI::Cookie;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 use Test::HTTP::Response;
 
 # Create new cookies, headers, etc
@@ -17,3 +19,21 @@ my $response = HTTP::Response->new( 200, $message, $message->headers );
 cookie_matches($response, { key => 'ID' },'ID exists ok');
 cookie_matches($response, { key => 'ID', value=>"123456" }, 'ID value correct');
 
+my $cookies = extract_cookies($response);
+
+warn Dumper (cookies => $cookies);
+
+my $expected_cookie = {
+		       'discard' => undef,
+		       'value' => '123456',
+		       'version' => 0,
+		       'path' => 1,
+		       'port' => undef,
+		       'key' => 'ID',
+		       'hash' => undef,
+		       'domain' => undef,
+		       'path_spec' => 1,
+		       'expires' => undef
+		      };
+
+is_deeply ( [@{$cookies->{ID}}{sort keys %$expected_cookie}], [@{$expected_cookie}{sort keys %$expected_cookie}], 'extracted cookie data matches');
