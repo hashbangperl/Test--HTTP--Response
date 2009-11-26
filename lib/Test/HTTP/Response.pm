@@ -31,7 +31,8 @@ use HTTP::Cookies;
 
 use base qw( Exporter Test::Builder::Module);
 
-our @EXPORT = qw( cookie_matches extract_cookies);
+our @EXPORT = qw(status_matches status_ok status_redirect status_not_found status_error
+		 cookie_matches extract_cookies);
 
 our $VERSION = '0.01';
 
@@ -40,6 +41,92 @@ my $Test = Test::Builder->new;
 my $CLASS = __PACKAGE__;
 
 =head1 FUNCTIONS
+
+=head2 status_matches
+
+Test that HTTP status of the response is (like) expected value
+
+status_matches($response, 200, 'Response is ok');
+
+Pass when status matches, fail when differs.
+
+Takes 3 arguments : response object, expected HTTP status code (or quoted-regexp pattern), comment.
+
+=head2 status_ok
+
+status_ok($response);
+
+Takes list of arguments : response object, optional comment
+
+Pass if response has status of 'OK', i.e. 200
+
+=head2 status_redirect
+
+status_redirect($response);
+
+Takes list of arguments : response object, optional comment
+
+Pass if response has status of 'REDIRECT', i.e. 301
+
+=head2 status_not_found
+
+status_not_found($response);
+
+Takes list of arguments : response object, optional comment
+
+Pass if response has status of 'NOT FOUND', i.e. 404
+
+=head2 status_error
+
+status_ok($response);
+
+Takes list of arguments : response object, optional comment
+
+Pass if response has status of 'OK', i.e. 500
+
+=cut
+
+sub status_matches {
+    my ($response, $code, $comment, $diag) = @_;
+    my $tb = $CLASS->builder;
+    my $match = (ref($code) eq 'Regexp') ? $response->code =~ m/$code/ : $response->code == $code;
+    my $ok = $tb->ok( $match, $comment);
+    unless ($ok) {
+	$diag ||= "status doesn't match, expected HTTP status code '$code', got " . $response->code . "\n";
+	$tb->diag();
+    }
+    return $ok;
+}
+
+sub status_ok {
+    my ($response, $comment) = @_;
+    $comment ||= 'Response has HTTP OK (2xx) status';
+    my $diag = "status is not HTTP OK, expected 200 or similar, got " . $response->code . "\n";
+    return status_matches($response, qr/2\d\d/, $comment, $diag );
+}
+
+sub status_redirect {
+    my ($response, $comment) = @_;
+    $comment ||= 'Response has HTTP REDIRECT (3xx) status';
+    my $diag = "status is not HTTP REDIRECT, expected 301 or similar, got " . $response->code . "\n";
+    return status_matches($response, qr/3\d\d/, $comment, $diag );
+}
+
+
+sub status_not_found {
+    my ($response, $comment) = @_;
+    $comment ||= 'Response has HTTP Not Found (404) status';
+    my $diag = "status is not HTTP Not Found, expected 404 or similar, got " . $response->code . "\n";
+    return status_matches($response, 404, $comment, $diag );
+}
+
+sub status_error {
+    my ($response, $comment) = @_;
+    $comment ||= 'Response has HTTP Error (5xx) status';
+    my $diag = "status is not HTTP ERROR, expected 500 or similar, got " . $response->code . "\n";
+    return status_matches($response, qr/5\d\d/, $comment, $diag );
+}
+
 
 =head2 cookie_matches
 
