@@ -32,6 +32,7 @@ use HTTP::Cookies;
 use base qw( Exporter Test::Builder::Module);
 
 our @EXPORT = qw(status_matches status_ok status_redirect status_not_found status_error
+		 header_matches
 		 cookie_matches extract_cookies);
 
 our $VERSION = '0.01';
@@ -129,12 +130,23 @@ sub status_error {
 
 =head2 header_matches
 
+header_matches($response, 'Content-type', 'Text/HTML', 'correct content type');
+
 =cut
 
 sub header_matches {
     my ($response, $field, $value, $comment) = @_;
 
-    
+    my $tb = $CLASS->builder;
+    my $match = (ref($value) eq 'Regexp')
+      ? scalar $response->header($field) =~ $value
+	: scalar $response->header($field) eq $value;
+    my $ok = $tb->ok( $match, $comment);
+    unless ($ok) {
+	my $diag = "header doesn't match, expected HTTP header field $field to be '$value', got '" . $response->header($field) . "'\n";
+	$tb->diag($diag);
+    }
+    return $ok;
 }
 
 =head2 cookie_matches
