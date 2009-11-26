@@ -1,0 +1,7 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/01_compiles.t
+t/02_simple_api.t
+lib/Test/HTTP/Response.pm
