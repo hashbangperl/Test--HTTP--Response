@@ -15,6 +15,8 @@ Test::HTTP::Response - Perl testing module for HTTP responses
 
   cookie_matches($response, { key => 'sessionid' },'sessionid exists ok'); # check matching cookie found in response
 
+  my $cookies = extract_cookies($response);
+
 =head1 DESCRIPTION
 
 Simple Perl testing module for HTTP responses and cookies
@@ -29,7 +31,7 @@ use HTTP::Cookies;
 
 use base qw( Exporter Test::Builder::Module);
 
-our @EXPORT = qw( cookie_matches );
+our @EXPORT = qw( cookie_matches extract_cookies);
 
 our $VERSION = '0.01';
 
@@ -62,7 +64,11 @@ sub cookie_matches {
 	$match = 1;
 	my $cookie_name = $attr_ref->{key};
 	foreach my $field ( keys %$attr_ref ) {
-	    unless ($cookies->{$cookie_name}{$field} eq $attr_ref->{$field}) {
+	    my $pattern = $attr_ref->{$field};
+	    my $this_match = (ref($attr_ref->{$field}) eq 'Regexp') ? 
+	      $cookies->{$cookie_name}{$field} =~ m/$pattern/ : $cookies->{$cookie_name}{$field} eq $attr_ref->{$field} ;
+
+	    unless ($this_match) {
 		$match = 0;
 		$failure = join('',"$field doesn't match ", $attr_ref->{$field}, "got ", $cookies->{$cookie_name}{$field} || '' , "instead\n");
 		last;
@@ -76,6 +82,24 @@ sub cookie_matches {
 	$tb->diag($failure);
     }
     return $ok;
+}
+
+=head2 extract_cookies
+
+Get cookies from response as a nested hash
+
+my $cookies = extract_cookies($response);
+
+Takes 1 argument : HTTP::Response object
+
+Returns hashref
+
+=cut
+
+sub extract_cookies {
+    my ($response) = @_;
+    my $cookies = _get_cookies($response);
+    return $cookies;
 }
 
 
