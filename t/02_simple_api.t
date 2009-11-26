@@ -6,7 +6,7 @@ use Data::Dumper;
 
 use CGI::Cookie;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 use Test::HTTP::Response;
 
 # Create new cookies, headers, etc
@@ -50,3 +50,5 @@ status_ok($response);
 #     $actual_failures++ unless status_error($response);
 # }
 # is ($actual_failures, 3 ,'other status codes failed as expected');
+
+header_matches($response, 'Content-type', 'Text/HTML', 'correct content type');
