@@ -6,7 +6,7 @@ use Data::Dumper;
 
 use CGI::Cookie;
 
-use Test::More tests => 3;
+use Test::More tests => 5;
 use Test::HTTP::Response;
 
 # Create new cookies, headers, etc
@@ -15,14 +15,13 @@ my $headers = ['set_cookie' => $cookie->as_string, 'content_type', 'Text/HTML'];
 my $message = HTTP::Message->new( $headers, '<HTML><BODY><h1>Hello World</h1></BODY></HTML>');
 my $response = HTTP::Response->new( 200, $message, $message->headers );
 
+#
 # check matching cookie(s) found in response
+
 cookie_matches($response, { key => 'ID' },'ID exists ok');
 cookie_matches($response, { key => 'ID', value=>"123456" }, 'ID value correct');
 
 my $cookies = extract_cookies($response);
-
-warn Dumper (cookies => $cookies);
-
 my $expected_cookie = {
 		       'discard' => undef,
 		       'value' => '123456',
@@ -35,5 +34,19 @@ my $expected_cookie = {
 		       'path_spec' => 1,
 		       'expires' => undef
 		      };
-
 is_deeply ( [@{$cookies->{ID}}{sort keys %$expected_cookie}], [@{$expected_cookie}{sort keys %$expected_cookie}], 'extracted cookie data matches');
+
+#
+# check status codes
+
+status_matches($response, 200, 'Response is ok');
+status_ok($response);
+
+# my $actual_failures = 0;
+# TODO: {
+#     local $TODO = 'These tests should always fail';
+#     $actual_failures++ unless status_redirect($response);
+#     $actual_failures++ unless status_not_found($response);
+#     $actual_failures++ unless status_error($response);
+# }
+# is ($actual_failures, 3 ,'other status codes failed as expected');
