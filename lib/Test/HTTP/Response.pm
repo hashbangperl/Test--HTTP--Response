@@ -13,6 +13,16 @@ Test::HTTP::Response - Perl testing module for HTTP responses
 
   ...
 
+  status_matches($response, 200, 'Response is ok');
+
+  status_ok($response);
+
+  status_redirect($response);
+
+  status_not_found($response);
+
+  status_error($response);
+
   cookie_matches($response, { key => 'sessionid' },'sessionid exists ok'); # check matching cookie found in response
 
   my $cookies = extract_cookies($response);
@@ -35,7 +45,7 @@ our @EXPORT = qw(status_matches status_ok status_redirect status_not_found statu
 		 header_matches
 		 cookie_matches extract_cookies);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 $Data::Dumper::Maxdepth = 2;
 my $Test = Test::Builder->new;
@@ -47,7 +57,7 @@ my $CLASS = __PACKAGE__;
 
 Test that HTTP status of the response is (like) expected value
 
-status_matches($response, 200, 'Response is ok');
+  status_matches($response, 200, 'Response is ok');
 
 Pass when status matches, fail when differs.
 
@@ -55,7 +65,7 @@ Takes 3 arguments : response object, expected HTTP status code (or quoted-regexp
 
 =head2 status_ok
 
-status_ok($response);
+  status_ok($response);
 
 Takes list of arguments : response object, optional comment
 
@@ -63,7 +73,7 @@ Pass if response has status of 'OK', i.e. 200
 
 =head2 status_redirect
 
-status_redirect($response);
+  status_redirect($response);
 
 Takes list of arguments : response object, optional comment
 
@@ -71,7 +81,7 @@ Pass if response has status of 'REDIRECT', i.e. 301
 
 =head2 status_not_found
 
-status_not_found($response);
+  status_not_found($response);
 
 Takes list of arguments : response object, optional comment
 
@@ -79,7 +89,7 @@ Pass if response has status of 'NOT FOUND', i.e. 404
 
 =head2 status_error
 
-status_ok($response);
+  status_error($response);
 
 Takes list of arguments : response object, optional comment
 
@@ -130,7 +140,7 @@ sub status_error {
 
 =head2 header_matches
 
-header_matches($response, 'Content-type', 'Text/HTML', 'correct content type');
+  header_matches($response, 'Content-type', 'Text/HTML', 'correct content type');
 
 =cut
 
@@ -153,7 +163,7 @@ sub header_matches {
 
 Test that a cookie with matching attributes is in the response headers
 
-cookie_matches($response, { key => 'sessionid' },'sessionid exists ok'); # check matching cookie found in response
+  cookie_matches($response, { key => 'sessionid' },'sessionid exists ok'); # check matching cookie found in response
 
 Passes when match found, fails if no matches found.
 
@@ -196,7 +206,7 @@ sub cookie_matches {
 
 Get cookies from response as a nested hash
 
-my $cookies = extract_cookies($response);
+  my $cookies = extract_cookies($response);
 
 Takes 1 argument : HTTP::Response object
 
@@ -217,7 +227,7 @@ my $cookies;
 
 sub _get_cookies {
     my $response = shift;
-    if (ref $response && $response->can('content') and not defined $cookies) {
+    if (ref $response and not defined $cookies->{"$response"}) {
 	unless ($response->request) {
 	    $response->request(HTTP::Request->new(GET => 'http://www.example.com/'));
 	}
@@ -226,12 +236,12 @@ sub _get_cookies {
 	$cookie_jar->scan( sub {
 			       my %cookie = ();
 			       @cookie{qw(version key value path domain port path domain port path_spec secure expires discard hash)} = @_;
-			       $cookies->{$cookie{key}} = \%cookie;
+			       $cookies->{"$response"}{$cookie{key}} = \%cookie;
 			   }
 			 );
     }
 
-    return $cookies;
+    return $cookies->{"$response"};
 }
 
 =head1 SEE ALSO
