@@ -1,6 +1,8 @@
 Revision history for Perl extension Test::HTTP::Response.
 
-0.01  Thu Nov 26 10:41:10 2009
-	- original version; created by h2xs 1.23 with options
-		-X Test::HTTP::Response
+0.02  Nov 27 2009
+	Fix caching of cookies
+	POD fixes/improvements
 
+0.01  Nov 26 2009 
+	Initial Release
