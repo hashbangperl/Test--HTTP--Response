@@ -6,7 +6,7 @@ use Data::Dumper;
 
 use CGI::Cookie;
 
-use Test::More tests => 6;
+use Test::More tests => 8;
 use Test::HTTP::Response;
 
 # Create new cookies, headers, etc

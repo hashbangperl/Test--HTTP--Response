@@ -27,9 +27,13 @@ Test::HTTP::Response - Perl testing module for HTTP responses
 
   my $cookies = extract_cookies($response);
 
+=head1 VERSION
+
+0.03
+
 =head1 DESCRIPTION
 
-Simple Perl testing module for HTTP responses and cookies
+Simple Perl testing module for HTTP responses and cookies, inspired by Test::HTTP and designed to work nicely with web framework test tools such as Plack::Test and Catalyst::Test
 
 =cut
 
@@ -45,7 +49,7 @@ our @EXPORT = qw(status_matches status_ok status_redirect status_not_found statu
 		 header_matches
 		 cookie_matches extract_cookies);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 $Data::Dumper::Maxdepth = 2;
 my $Test = Test::Builder->new;
