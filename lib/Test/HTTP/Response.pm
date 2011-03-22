@@ -1,7 +1,6 @@
 package Test::HTTP::Response;
 use strict;
 use warnings;
-use Carp qw(cluck confess);
 
 =head1 NAME
 
@@ -29,15 +28,13 @@ Test::HTTP::Response - Perl testing module for HTTP responses
 
 =head1 VERSION
 
-0.03
+0.04
 
 =head1 DESCRIPTION
 
 Simple Perl testing module for HTTP responses and cookies, inspired by Test::HTTP and designed to work nicely with web framework test tools such as Plack::Test and Catalyst::Test
 
 =cut
-
-use Data::Dumper;
 
 use HTTP::Request;
 use HTTP::Response;
@@ -47,11 +44,12 @@ use base qw( Exporter Test::Builder::Module);
 
 our @EXPORT = qw(status_matches status_ok status_redirect status_not_found status_error
 		 header_matches
+		 headers_match
+		 all_headers_match
 		 cookie_matches extract_cookies);
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
-$Data::Dumper::Maxdepth = 2;
 my $Test = Test::Builder->new;
 my $CLASS = __PACKAGE__;
 
@@ -161,6 +159,74 @@ sub header_matches {
 	$tb->diag($diag);
     }
     return $ok;
+}
+
+=head2 headers_match
+
+Test a list of headers at once
+
+  headers_match $response, {
+    'Content-Type'   => /text/,
+    'Content-Length' => sub { $_ > 10 },
+    'Cache-Control'  => 'private, no-cache, no-store',
+  };
+
+=cut
+
+sub headers_match {
+    my ($response, $expected) = @_;
+
+    my $tb = $CLASS->builder;
+
+    for my $header (keys %$expected) {
+        my $val = $response->header($header);
+        my $exp = $expected->{$header};
+
+        my $ok;
+
+        if(ref($exp) eq 'CODE') {
+            $_ = $val;
+            $ok = &{$exp}($val);
+        } elsif(ref($exp) eq 'Regexp') {
+            $ok = $val =~ $exp;
+        } else {
+            $ok = $val eq $exp;
+        }
+
+        $tb->ok($ok, "HTTP header field $header matches");
+    }
+}
+
+=head2 all_headers_match
+
+Test all headers in a response. Fails if any header field is left untested.
+
+  all_headers_match $response, {
+    'Content-Type'   => /text/,
+    'Content-Length' => sub { $_ > 10 },
+    'Cache-Control'  => 'private, no-cache, no-store',
+  };
+
+=cut
+
+sub all_headers_match {
+    my ($response, $expected) = @_;
+
+    headers_match($response, $expected);
+
+    my $tb = $CLASS->builder;
+
+    $expected = { map { lc($_) => $expected->{$_} } keys %$expected };
+
+    my $ok;
+    for my $header (map{ lc } $response->headers->header_field_names) {
+        unless($ok = exists $expected->{$header}) {
+            $tb->ok($ok, "Test for HTTP header field '$header'");
+            last;
+        }
+    }
+
+    $tb->ok($ok, "Tests for all HTTP header fields");
 }
 
 =head2 cookie_matches
