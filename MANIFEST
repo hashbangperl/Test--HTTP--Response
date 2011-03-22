@@ -4,4 +4,5 @@ MANIFEST
 README
 t/01_compiles.t
 t/02_simple_api.t
+t/03_headers.t
 lib/Test/HTTP/Response.pm

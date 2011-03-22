@@ -1,7 +1,8 @@
 Revision history for Perl extension Test::HTTP::Response.
 
 0.04  Mar 22 2011
-	
+	Added headers_match (Robin Edwards)
+	Added headers_all_match (Robin Edwards)
 
 0.03  Dec 3 2009
 	Tiny pod improvement
