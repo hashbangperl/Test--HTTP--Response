@@ -1,5 +1,9 @@
 Revision history for Perl extension Test::HTTP::Response.
 
+0.05  Jan 05 2012
+	Hopefully fixed bug RT #81644 'Test failures due to hash randomisation in perl 5.17.6'
+	Added git repo metadata
+
 0.04  Mar 22 2011
 	Added headers_match (Robin Edwards)
 	Added headers_all_match (Robin Edwards)

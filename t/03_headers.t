@@ -13,7 +13,7 @@ my $response = HTTP::Response->new( 200, $message, $message->headers );
 
 headers_match $response, {
     'Cache-Control' => qr/PRIVATE/i,
-    'Content-Type' => 'text/html', 
+    'Content-Type' => 'text/html',
     'X-Foo' => sub { $_ == 20 }
 };
 
@@ -32,16 +32,16 @@ headers_match $response, {
 
 all_headers_match $response, {
     'Cache-Control' => qr/PRIVATE/i,
-    'Content-Type' => 'text/html', 
+    'Content-Type' => 'text/html',
     'X-Foo' => sub { $_ == 20 }
 };
 
 diag "checking all_headers_match is case insensitive.";
 all_headers_match $response, {
     'Cache-control' => qr/PRIVATE/i,
-    'content-Type' => 'text/html', 
+    'content-Type' => 'text/html',
     'X-foo' => sub { $_ == 20 }
-}; 
+};
 
 test_out(q{ok 1 - HTTP header field Cache-control matches
 ok 2 - HTTP header field content-Type matches
@@ -54,7 +54,7 @@ test_err(q{#   Failed test 'Test for HTTP header field 'x-foo''
 
 all_headers_match $response, {
     'Cache-control' => qr/PRIVATE/i,
-    'content-Type' => 'text/html', 
+    'content-Type' => 'text/html',
 };
 
 test_test("all_headers_match fails on missing field");

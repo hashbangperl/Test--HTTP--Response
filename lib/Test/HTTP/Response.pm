@@ -28,7 +28,7 @@ Test::HTTP::Response - Perl testing module for HTTP responses
 
 =head1 VERSION
 
-0.04
+0.05
 
 =head1 DESCRIPTION
 
@@ -48,7 +48,7 @@ our @EXPORT = qw(status_matches status_ok status_redirect status_not_found statu
 		 all_headers_match
 		 cookie_matches extract_cookies);
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 my $Test = Test::Builder->new;
 my $CLASS = __PACKAGE__;
@@ -151,12 +151,12 @@ sub header_matches {
 
     my $tb = $CLASS->builder;
     my $match = (ref($value) eq 'Regexp')
-      ? scalar $response->header($field) =~ $value
-	: scalar $response->header($field) eq $value;
+       ? scalar $response->header($field) =~ $value
+       : scalar $response->header($field) eq $value;
     my $ok = $tb->ok( $match, $comment);
     unless ($ok) {
-	my $diag = "header doesn't match, expected HTTP header field $field to be '$value', got '" . $response->header($field) . "'\n";
-	$tb->diag($diag);
+        my $diag = "header doesn't match, expected HTTP header field $field to be '$value', got '" . $response->header($field) . "'\n";
+        $tb->diag($diag);
     }
     return $ok;
 }
@@ -178,7 +178,7 @@ sub headers_match {
 
     my $tb = $CLASS->builder;
 
-    for my $header (keys %$expected) {
+    for my $header (sort keys %$expected) {
         my $val = $response->header($header);
         my $exp = $expected->{$header};
 
@@ -219,7 +219,7 @@ sub all_headers_match {
     $expected = { map { lc($_) => $expected->{$_} } keys %$expected };
 
     my $ok;
-    for my $header (map{ lc } $response->headers->header_field_names) {
+    for my $header (sort map{ lc } $response->headers->header_field_names) {
         unless($ok = exists $expected->{$header}) {
             $tb->ok($ok, "Test for HTTP header field '$header'");
             last;
@@ -251,9 +251,9 @@ sub cookie_matches {
     if ($cookies->{$attr_ref->{key}}) {
 	$match = 1;
 	my $cookie_name = $attr_ref->{key};
-	foreach my $field ( keys %$attr_ref ) {
+	foreach my $field ( sort keys %$attr_ref ) {
 	    my $pattern = $attr_ref->{$field};
-	    my $this_match = (ref($attr_ref->{$field}) eq 'Regexp') ? 
+	    my $this_match = (ref($attr_ref->{$field}) eq 'Regexp') ?
 	      $cookies->{$cookie_name}{$field} =~ m/$pattern/ : $cookies->{$cookie_name}{$field} eq $attr_ref->{$field} ;
 
 	    unless ($this_match) {
