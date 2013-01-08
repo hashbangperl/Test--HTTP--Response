@@ -5,7 +5,8 @@ WriteMakefile(
     NAME              => 'Test::HTTP::Response',
     VERSION_FROM      => 'lib/Test/HTTP/Response.pm', # finds $VERSION
     PREREQ_PM         => {
-			    'HTTP::Response' =>  0,
+			    'HTTP::Message' =>  6.06,
+			    'HTTP::Cookies' => 6.01,
 			 }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
        (AUTHOR         => 'Aaron Trevena <teejay@(none)>') : ()),
@@ -14,4 +15,5 @@ WriteMakefile(
        repository => 'https://github.com/hashbangperl/Test--HTTP--Response',
     },
    },
+   ($ExtUtils::MakeMaker::VERSION >= 6.3002 ? ('LICENSE'  => 'perl', ) : ()),
 );
