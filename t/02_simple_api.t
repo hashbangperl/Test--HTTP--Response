@@ -23,17 +23,17 @@ cookie_matches($response, { key => 'ID', value=>"123456" }, 'ID value correct');
 
 my $cookies = extract_cookies($response);
 my $expected_cookie = {
-		       'discard' => undef,
-		       'value' => '123456',
-		       'version' => 0,
-		       'path' => 1,
-		       'port' => undef,
-		       'key' => 'ID',
-		       'hash' => undef,
-		       'domain' => undef,
-		       'path_spec' => 1,
-		       'expires' => undef
-		      };
+                       'discard' => undef,
+                       'value' => '123456',
+                       'version' => 0,
+                       'path' => 1,
+                       'port' => undef,
+                       'key' => 'ID',
+                       'hash' => undef,
+                       'domain' => undef,
+                       'path_spec' => 1,
+                       'expires' => undef
+                      };
 is_deeply ( [@{$cookies->{ID}}{sort keys %$expected_cookie}], [@{$expected_cookie}{sort keys %$expected_cookie}], 'extracted cookie data matches');
 
 #

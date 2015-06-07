@@ -22,13 +22,13 @@ Test::HTTP::Response - Perl testing module for HTTP responses
 
   status_error($response);
 
-  cookie_matches($response, { key => 'sessionid' },'sessionid exists ok'); # check matching cookie found in response
+  cookie_matches($response, { key => 'sessionid' }, 'sessionid exists ok'); # check matching cookie found in response
 
   my $cookies = extract_cookies($response);
 
 =head1 VERSION
 
-0.06
+0.07
 
 =head1 DESCRIPTION
 
@@ -40,15 +40,15 @@ use HTTP::Request;
 use HTTP::Response;
 use HTTP::Cookies;
 
-use base qw( Exporter Test::Builder::Module);
+use base qw(Exporter Test::Builder::Module);
 
 our @EXPORT = qw(status_matches status_ok status_redirect status_not_found status_error
-		 header_matches
-		 headers_match
-		 all_headers_match
-		 cookie_matches extract_cookies);
+                 header_matches
+                 headers_match
+                 all_headers_match
+                 cookie_matches extract_cookies);
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 my $Test = Test::Builder->new;
 my $CLASS = __PACKAGE__;
@@ -101,43 +101,55 @@ Pass if response has status of 'OK', i.e. 500
 
 sub status_matches {
     my ($response, $code, $comment, $diag) = @_;
+
     my $tb = $CLASS->builder;
     my $match = (ref($code) eq 'Regexp') ? $response->code =~ m/$code/ : $response->code == $code;
-    my $ok = $tb->ok( $match, $comment);
+
+    my $ok = $tb->ok($match, $comment);
+
     unless ($ok) {
-	$diag ||= "status doesn't match, expected HTTP status code '$code', got " . $response->code . "\n";
-	$tb->diag($diag);
+        $diag ||= "status doesn't match, expected HTTP status code '$code', got " . $response->code . "\n";
+        $tb->diag($diag);
     }
+
     return $ok;
 }
 
 sub status_ok {
     my ($response, $comment) = @_;
+
     $comment ||= 'Response has HTTP OK (2xx) status';
     my $diag = "status is not HTTP OK, expected 200 or similar, got " . $response->code . "\n";
-    return status_matches($response, qr/2\d\d/, $comment, $diag );
+
+    return status_matches($response, qr/2\d\d/, $comment, $diag);
 }
 
 sub status_redirect {
     my ($response, $comment) = @_;
+
     $comment ||= 'Response has HTTP REDIRECT (3xx) status';
     my $diag = "status is not HTTP REDIRECT, expected 301 or similar, got " . $response->code . "\n";
-    return status_matches($response, qr/3\d\d/, $comment, $diag );
+
+    return status_matches($response, qr/3\d\d/, $comment, $diag);
 }
 
 
 sub status_not_found {
     my ($response, $comment) = @_;
+
     $comment ||= 'Response has HTTP Not Found (404) status';
     my $diag = "status is not HTTP Not Found, expected 404 or similar, got " . $response->code . "\n";
-    return status_matches($response, 404, $comment, $diag );
+
+    return status_matches($response, 404, $comment, $diag);
 }
 
 sub status_error {
     my ($response, $comment) = @_;
+
     $comment ||= 'Response has HTTP Error (5xx) status';
     my $diag = "status is not HTTP ERROR, expected 500 or similar, got " . $response->code . "\n";
-    return status_matches($response, qr/5\d\d/, $comment, $diag );
+
+    return status_matches($response, qr/5\d\d/, $comment, $diag);
 }
 
 =head2 header_matches
@@ -153,11 +165,14 @@ sub header_matches {
     my $match = (ref($value) eq 'Regexp')
        ? scalar $response->header($field) =~ $value
        : scalar $response->header($field) eq $value;
-    my $ok = $tb->ok( $match, $comment);
+
+    my $ok = $tb->ok($match, $comment);
+
     unless ($ok) {
         my $diag = "header doesn't match, expected HTTP header field $field to be '$value', got '" . $response->header($field) . "'\n";
         $tb->diag($diag);
     }
+
     return $ok;
 }
 
@@ -219,6 +234,7 @@ sub all_headers_match {
     $expected = { map { lc($_) => $expected->{$_} } keys %$expected };
 
     my $ok;
+
     for my $header (sort map{ lc } $response->headers->header_field_names) {
         unless($ok = exists $expected->{$header}) {
             $tb->ok($ok, "Test for HTTP header field '$header'");
@@ -233,7 +249,7 @@ sub all_headers_match {
 
 Test that a cookie with matching attributes is in the response headers
 
-  cookie_matches($response, { key => 'sessionid' },'sessionid exists ok'); # check matching cookie found in response
+  cookie_matches($response, { key => 'sessionid' }, 'sessionid exists ok'); # check matching cookie found in response
 
 Passes when match found, fails if no matches found.
 
@@ -242,33 +258,37 @@ Takes a list of arguments filename/response, hashref of attributes and strings o
 =cut
 
 sub cookie_matches {
-    my ($response,$attr_ref,$name) = @_;
+    my ($response, $attr_ref, $name) = @_;
+
     my $tb = $CLASS->builder;
     my $cookies = _get_cookies($response);
 
     my $match = 0;
     my $failure = 'no cookie matching key/name : ' . $attr_ref->{key};
-    if ($cookies->{$attr_ref->{key}}) {
-	$match = 1;
-	my $cookie_name = $attr_ref->{key};
-	foreach my $field ( sort keys %$attr_ref ) {
-	    my $pattern = $attr_ref->{$field};
-	    my $this_match = (ref($attr_ref->{$field}) eq 'Regexp') ?
-	      $cookies->{$cookie_name}{$field} =~ m/$pattern/ : $cookies->{$cookie_name}{$field} eq $attr_ref->{$field} ;
 
-	    unless ($this_match) {
-		$match = 0;
-		$failure = join('',"$field doesn't match ", $attr_ref->{$field}, "got ", $cookies->{$cookie_name}{$field} || '' , "instead\n");
-		last;
-	    }
-	}
+    if ($cookies->{$attr_ref->{key}}) {
+        $match = 1;
+        my $cookie_name = $attr_ref->{key};
+
+        foreach my $field (sort keys %$attr_ref) {
+            my $pattern = $attr_ref->{$field};
+            my $this_match = (ref($attr_ref->{$field}) eq 'Regexp') ?
+            $cookies->{$cookie_name}{$field} =~ m/$pattern/ : $cookies->{$cookie_name}{$field} eq $attr_ref->{$field} ;
+
+            unless ($this_match) {
+                $match = 0;
+                $failure = join('', "$field doesn't match ", $attr_ref->{$field}, "got ", $cookies->{$cookie_name}{$field} || '' , "instead\n");
+                last;
+            }
+        }
     }
 
-    my $ok = $tb->ok( $match, $name);
+    my $ok = $tb->ok($match, $name);
 
     unless ($ok) {
-	$tb->diag($failure);
+        $tb->diag($failure);
     }
+
     return $ok;
 }
 
@@ -286,7 +306,9 @@ Returns hashref
 
 sub extract_cookies {
     my ($response) = @_;
+
     my $cookies = _get_cookies($response);
+
     return $cookies;
 }
 
@@ -297,18 +319,19 @@ my $cookies;
 
 sub _get_cookies {
     my $response = shift;
+
     if (ref $response and not defined $cookies->{"$response"}) {
-	unless ($response->request) {
-	    $response->request(HTTP::Request->new(GET => 'http://www.example.com/'));
-	}
-	my $cookie_jar = HTTP::Cookies->new;
-	$cookie_jar->extract_cookies($response);
-	$cookie_jar->scan( sub {
-			       my %cookie = ();
-			       @cookie{qw(version key value path domain port path domain port path_spec secure expires discard hash)} = @_;
-			       $cookies->{"$response"}{$cookie{key}} = \%cookie;
-			   }
-			 );
+        unless ($response->request) {
+            $response->request(HTTP::Request->new(GET => 'http://www.example.com/'));
+        }
+
+        my $cookie_jar = HTTP::Cookies->new;
+        $cookie_jar->extract_cookies($response);
+        $cookie_jar->scan(sub {
+            my %cookie = ();
+            @cookie{qw(version key value path domain port path domain port path_spec secure expires discard hash)} = @_;
+            $cookies->{"$response"}{$cookie{key}} = \%cookie;
+        });
     }
 
     return $cookies->{"$response"};

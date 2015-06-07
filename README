@@ -16,8 +16,9 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-Test::More
-HTTP::Response
+CGI::Cookie
+HTTP::Cookies
+HTTP::Message
 
 COPYRIGHT AND LICENCE
 
