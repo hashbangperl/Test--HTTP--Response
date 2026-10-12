@@ -1,0 +1,17 @@
+^MYMETA.json
+^MYMETA.yml
+^Makefile$
+^blib/
+^pm_to_blib
+^tmp/
+\.old$
+\.bak$
+\.tmp$
+\.swp$
+\.tar\.gz$
+cover_db/
+coverage/
+html/
+.git/
+^MYMETA.*
+/MANIFEST.bak
