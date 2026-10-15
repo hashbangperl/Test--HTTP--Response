@@ -18,10 +18,8 @@ headers_match $response, {
 };
 
 test_out("not ok 1 - HTTP header field X-Foo matches");
-test_err("#   Failed test 'HTTP header field X-Foo matches'\n#   at t/03_headers.t line ".(line_num()+3).".");
-headers_match $response, {
-    'X-Foo' => sub { $_ == 21 }
-};
+test_err("#   Failed test 'HTTP header field X-Foo matches'\n#   at t/03_headers.t line ".(line_num()+1).".");
+headers_match $response, { 'X-Foo' => sub { $_ == 21 } };
 
 test_test('Fail for SubRef constraint');
 
@@ -48,9 +46,9 @@ ok 2 - HTTP header field content-Type matches
 not ok 3 - Test for HTTP header field 'x-foo'
 not ok 4 - Tests for all HTTP header fields});
 test_err(q{#   Failed test 'Test for HTTP header field 'x-foo''
-#   at t/03_headers.t line 55.
+#   at t/03_headers.t line 53.
 #   Failed test 'Tests for all HTTP header fields'
-#   at t/03_headers.t line 55.});
+#   at t/03_headers.t line 53.});
 
 all_headers_match $response, {
     'Cache-control' => qr/PRIVATE/i,
